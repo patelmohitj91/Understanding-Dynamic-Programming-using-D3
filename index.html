@@ -15,6 +15,13 @@ circle {
   stroke-width: 3px;
 }
 
+.weight{
+  width: 150px;
+  margin-left: 15px;
+  float:left;
+  font-weight:bold;
+  color: "Black";  }
+
 </style>
 <div id="grid"></div>
 <body>
@@ -44,7 +51,7 @@ function gridData(r,c,bw,bh) {
     
     // iterate for cells/columns inside rows
     for (var column = 0; column < c; column++) {
-      var wt = Math.round(Math.random() * (r - 0) + 0,0)
+      var wt = Math.round(Math.random() * Math.max(r,c))
 
       data[row].push({
         x: xpos,
@@ -90,20 +97,46 @@ var column = row.selectAll(".square")
   .attr("weight",function(d) {return d.weight})
   .style("fill", "#fff")
   .style("stroke", "#222")
-  .on('click', function(d) {
+   .on('click', function(d) {
        d.click ++;
        if ((d.click)%4 == 0 ) { d3.select(this).style("fill","#fff"); }
      if ((d.click)%4 == 1 ) { d3.select(this).style("fill","#2C93E8"); }
      if ((d.click)%4 == 2 ) { d3.select(this).style("fill","#F56C4E"); }
      if ((d.click)%4 == 3 ) { d3.select(this).style("fill","#838690"); }
     })
-  .on('mouseover',function(d) {return console.log(d.weight)});
+  .on('mouseover',function(d){return displayText(d.weight, d.x, d.y)});
+  //.on('mouseover',function(d) {return console.log(d.weight)});
+
 
 // Draw Path
 var path = grid.append("path")
     .data([points])
     .attr("d", d3.line(d3.curveLinear))
     ;
+
+
+function displayText(boxweight, xpos, ypos)
+{
+  var weight = boxweight;
+  var xposition = xpos + 20;
+  var yposition = ypos + 20;
+
+  var text = grid.append("text")
+                //.attr("text", weight)
+                .text(weight)
+                .attr("id", "weight")
+                .style("color","black")
+                .attr("transform","translate("+xposition+","+yposition+")")
+
+
+}
+/*var text = grid.append("text")
+    .data(gridData)
+    .enter().append("svg:text")
+    .attr("transform","translate(600, 300)")
+    .text(function(d){return console.log(d.weight);});
+*/
+
 // Draw Circle at start of path
 var circle = grid.append("circle")
     .attr('r',7)
