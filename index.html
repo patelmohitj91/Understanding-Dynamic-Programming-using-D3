@@ -74,7 +74,7 @@ function gridData(r,c,bw,bh) {
 
 var gridData = gridData(r,c,bw,bh);  
 // I like to log the data to the console for quick debugging
-console.log(gridData);
+//console.log(gridData);
 
 var grid = d3.select("#grid")
   .append("svg")
@@ -97,14 +97,15 @@ var column = row.selectAll(".square")
   .attr("weight",function(d) {return d.weight})
   .style("fill", "#fff")
   .style("stroke", "#222")
+  .attr("text",function(d){return displayText(d.weight, d.x, d.y)})
    .on('click', function(d) {
        d.click ++;
        if ((d.click)%4 == 0 ) { d3.select(this).style("fill","#fff"); }
      if ((d.click)%4 == 1 ) { d3.select(this).style("fill","#2C93E8"); }
      if ((d.click)%4 == 2 ) { d3.select(this).style("fill","#F56C4E"); }
      if ((d.click)%4 == 3 ) { d3.select(this).style("fill","#838690"); }
-    })
-  .on('mouseover',function(d){return displayText(d.weight, d.x, d.y)});
+    });
+  //.on('mouseover',function(d){return displayText(d.weight, d.x, d.y)});
   //.on('mouseover',function(d) {return console.log(d.weight)});
 
 
