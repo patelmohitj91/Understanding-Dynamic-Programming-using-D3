@@ -86,6 +86,9 @@ var row = grid.selectAll(".row")
   .enter().append("g")
   .attr("class", "row");
   
+var start = false;
+var count = 0;
+
 var column = row.selectAll(".square")
   .data(function(d) { return d; })
   .enter().append("rect")
@@ -98,13 +101,23 @@ var column = row.selectAll(".square")
   .style("fill", "#fff")
   .style("stroke", "#222")
   .attr("text",function(d){return displayText(d.weight, d.x, d.y)})
-   .on('click', function(d) {
+  .on('click', function(d){
+    if(count < 2)
+    {
+    if(start == true)
+      {console.log("End")
+        start = false}
+    else {console.log("Start")
+          start = true}
+  }
+count = count +1; })
+  /* .on('click', function(d) {
        d.click ++;
        if ((d.click)%4 == 0 ) { d3.select(this).style("fill","#fff"); }
      if ((d.click)%4 == 1 ) { d3.select(this).style("fill","#2C93E8"); }
      if ((d.click)%4 == 2 ) { d3.select(this).style("fill","#F56C4E"); }
      if ((d.click)%4 == 3 ) { d3.select(this).style("fill","#838690"); }
-    });
+    });*/
   //.on('mouseover',function(d){return displayText(d.weight, d.x, d.y)});
   //.on('mouseover',function(d) {return console.log(d.weight)});
 
@@ -115,6 +128,7 @@ var path = grid.append("path")
     .attr("d", d3.line(d3.curveLinear))
     ;
 
+// Function to display text
 
 function displayText(boxweight, xpos, ypos)
 {
@@ -131,12 +145,9 @@ function displayText(boxweight, xpos, ypos)
 
 
 }
-/*var text = grid.append("text")
-    .data(gridData)
-    .enter().append("svg:text")
-    .attr("transform","translate(600, 300)")
-    .text(function(d){return console.log(d.weight);});
-*/
+
+
+
 
 // Draw Circle at start of path
 var circle = grid.append("circle")
