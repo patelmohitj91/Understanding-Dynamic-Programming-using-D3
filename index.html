@@ -2,6 +2,7 @@
 <head>
   <script src="https://d3js.org/d3.v4.min.js"></script>
 </head>
+<title>Understanding Dynamic Programming using D3</title>
 <style>
 
 path {
@@ -23,7 +24,13 @@ circle {
   color: "Black";  }
 
 </style>
-<div id="grid"></div>
+<h4>Understanding Dynamic Programming through Interactive Visualization</h4>
+<center>
+<svg id="grid" width="920" height="500"></svg>
+<div id = "controls">
+<input type = "submit" value="Update Weights" onclick="update()"/>
+  </div>
+</center>  
 <body>
 <script>
   var bw = 40
@@ -37,6 +44,12 @@ circle {
   [60,220]
 ];
 
+// function to generate random numbers
+function numGenerate(r,c)
+{ return Math.round(Math.random() * Math.max(r,c))
+}
+
+// function to generate the array of points to plot squares
 
 function gridData(r,c,bw,bh) {
   var data = new Array();
@@ -51,7 +64,7 @@ function gridData(r,c,bw,bh) {
     
     // iterate for cells/columns inside rows
     for (var column = 0; column < c; column++) {
-      var wt = Math.round(Math.random() * Math.max(r,c))
+      var wt = numGenerate(r,c)
 
       data[row].push({
         x: xpos,
@@ -72,17 +85,28 @@ function gridData(r,c,bw,bh) {
   return data;
 }
 
-var gridData = gridData(r,c,bw,bh);  
-// I like to log the data to the console for quick debugging
-//console.log(gridData);
 
-var grid = d3.select("#grid")
-  .append("svg")
+
+
+
+// Function to build the grid
+
+function buildGrid(r,c,bw,bh)
+{ var r = r;
+  var c = c;
+  var bw = bw;
+  var bh = bh;
+
+var gridD = gridData(r,c,bw,bh);  
+
+var grid = d3.select("svg")
+  .append("g")
   .attr("width",((r*bw)+r)+"px")
-  .attr("height",((c*bh)+c)+"px");
+  .attr("height",((c*bh)+c)+"px")
+  .attr("transform","translate(250,0)");
   
 var row = grid.selectAll(".row")
-  .data(gridData)
+  .data(gridD)
   .enter().append("g")
   .attr("class", "row");
   
@@ -106,11 +130,16 @@ var column = row.selectAll(".square")
     {
     if(start == true)
       {console.log("End")
+        d3.select(this).style("fill","green");
         start = false}
     else {console.log("Start")
+          d3.select(this).style("fill","red");
           start = true}
   }
 count = count +1; })
+
+
+
   /* .on('click', function(d) {
        d.click ++;
        if ((d.click)%4 == 0 ) { d3.select(this).style("fill","#fff"); }
@@ -126,7 +155,13 @@ count = count +1; })
 var path = grid.append("path")
     .data([points])
     .attr("d", d3.line(d3.curveLinear))
-    ;
+    .attr("id","pathID");
+
+// Draw Circle at start of path
+var circle = grid.append("circle")
+    .attr('r',7)
+    .attr("transform","translate(" +points[0]+ ")")
+    .attr("id","circleID");     
 
 // Function to display text
 
@@ -143,16 +178,22 @@ function displayText(boxweight, xpos, ypos)
                 .style("color","black")
                 .attr("transform","translate("+xposition+","+yposition+")")
 
+}
 
+} // end of buildGrid function
+
+// function to update the canvas
+function update()
+{ d3.selectAll('#weight').remove();
+  d3.selectAll('.square').remove();
+  d3.selectAll('#pathID').remove();
+  d3.selectAll('#circleID').remove();
+
+//d3.selectAll('#grid').remove();
+buildGrid(r,c,bw,bh);
 }
 
 
-
-
-// Draw Circle at start of path
-var circle = grid.append("circle")
-    .attr('r',7)
-    .attr("transform","translate(" +points[0]+ ")"); 
 
 
 
@@ -174,6 +215,9 @@ function translateAlong(path) {
     };
   };
 }  
+
+// Call function to build initial grid
+buildGrid(r,c,bw,bh);
 
 //transition();
 </script>
