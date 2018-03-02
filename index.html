@@ -28,21 +28,51 @@
 
         color: "Black";
     }
+
+    .box {
+      height : 30px;
+      width : 50px;
+    }
+
+    .controls
+    {
+      
+        width: 150px;
+        margin-left: 15px;
+        float: left;
+        font-weight: bold;
+        font-size: 15px;
+        color: "Black";
+    
+    }
+
+
 </style>
 <h4>Understanding Dynamic Programming through Interactive Visualization</h4>
 <center>
     <svg id="grid" width="920" height="500"></svg>
-    <div id="controls">
-        <input type="submit" value="Update Weights" onclick="update()" />
-    </div>
-</center>
+    <br/>
+</center>    
+        <h4>
+        <div>Step 1: Select number of rows and columns</div><br/>
+        <div class = "rowcol">Number of Rows: <input name = 'rowBox' type="number" min = "1" max="10" value = "1" id = "rowBox" class="box"/> &nbsp
+          Number of Columns: <input name = 'colBox' type="number" min = "1" max="10" value = "1" id = "colBox" class ="box"/>&nbsp <input name = 'buildBox' type="submit" maxlength="2" id = "buildBox" value = "Build Grid" onclick = "update()"/> </div> 
+        </div> <br/>
+        <div>Step 2: Select the start and end point on the Grid</div> <br/>
+        <div id ="start" class = "text">You start at :</div> <br/>
+        <div id ="end" class = "text">You end at :</div> <br/>
+        <div>Step 3: Hit Explore! &nbsp 
+        <input name = 'exploreBox' type="submit" maxlength="2" id = "exploreBox" value = "Explore" onclick = "update()"/> </div> 
+      </h4>
+  
+
 
 <body>
     <script>
         var bw = 40;
         var bh = 40;
-        var r = 3;
-        var c = 3;
+        var r = 10;
+        var c = 10;
 
         var points = [
             [20, 180],
@@ -83,7 +113,9 @@
                         width: bw,
                         height: bh,
                         click: click,
-                        weight: wt
+                        weight: wt,
+                        r: row,
+                        c: column
                     })
                     // increment the x position. I.e. move it over by 50 (width variable)
                     xpos += bw;
@@ -149,11 +181,13 @@
                 .on('click', function(d) {
                     if (count < 2) {
                         if (start == true) {
-                            console.log("End")
+                            //console.log("End")
+                            endPoint(d3.select(this.__data__));
                             d3.select(this).style("fill", "green");
                             start = false
                         } else {
-                            console.log("Start")
+                            //console.log(d3.select(this.__data__))
+                            startPoint(d3.select(this.__data__));
                             d3.select(this).style("fill", "red");
                             start = true
                         }
@@ -175,20 +209,20 @@
 
 
             // Draw Path
-            var path = grid.append("path")
-                .data([points])
+            var linepath = grid.append("path")
+                .data([path])
                 .attr("d", d3.line(d3.curveLinear))
                 .attr("id", "pathID");
 
-            var path2 = grid.append("path")
+            /*var path2 = grid.append("path")
                 .data([points2])
                 .attr("d", d3.line(d3.curveLinear))
-                .attr("id", "pathID");
+                .attr("id", "pathID"); */
 
             // Draw Circle at start of path
             var circle = grid.append("circle")
                 .attr('r', 7)
-                .attr("transform", "translate(" + points[0] + ")")
+                .attr("transform", "translate(" + path[0] + ")")
                 .attr("id", "circleID");
 
             // Function to display text
@@ -211,24 +245,24 @@
 
             // Draw new circle
 
-            var circle2 = grid.append("circle")
+            /*var circle2 = grid.append("circle")
                 .attr('r', 7)
                 .attr("transform", "translate(" + points[0] + ")")
-                .attr("id", "circleID");
+                .attr("id", "circleID"); */
 
             function transition() {
-                circle2.transition()
+                circle.transition()
                     .duration(2000)
-                    .attrTween("transform", translateAlong(path2.node()))
+                    .attrTween("transform", translateAlong(linepath.node()))
                 //.each("end", transition);
             }
 
             // Returns an attrTween for translating along the specified path element.
-            function translateAlong(path2) {
-                var l = path2.getTotalLength();
+            function translateAlong(linepath) {
+                var l = linepath.getTotalLength();
                 return function(d, i, a) {
                     return function(t) {
-                        var p = path2.getPointAtLength(t * l);
+                        var p = linepath.getPointAtLength(t * l);
                         return "translate(" + p.x + "," + p.y + ")";
                     };
                 };
@@ -247,13 +281,41 @@
             d3.selectAll('#circleID').remove();
 
             //d3.selectAll('#grid').remove();
-            buildGrid(r, c, bw, bh, constructed_grid);
+            /*constructed_grid_updated = gridData(r, c, bw, bh);
+            var origin = [0, 0];
+            var destination = [r - 1, c - 1];
+            cost_matrix = findMinCost(constructed_grid, origin, destination)
+            var path = findCheapestPath(cost_matrix, origin, destination, constructed_grid); */
+            
+            var rows = document.getElementById("rowBox").value
+            var cols = document.getElementById("colBox").value
+            
+            constructed_grid = gridData(rows, cols, bw, bh);
+
+            //console.log(constructed_grid)
+
+            buildGrid(rows, cols, bw, bh, constructed_grid);
         }
 
+        // function to display startpoint
+        function startPoint(pointData)
+        {
+          var startX = pointData.node()['r']
+          var startY = pointData.node()['c']
+          origin = "You start at : " + startX + " , "+ startY 
+          document.getElementById("start").innerHTML = origin;
+        }
 
+        function endPoint(pointData)
+        {
+          var endX = pointData.node()['r']
+          var endY = pointData.node()['c']
+          destination = "You end at : " + endX + " , "+ endY 
+          //destination = endX + "," + endY
+          document.getElementById("end").innerHTML = destination;
+        }
 
-
-        function transition() {
+     /*   function transition() {
             circle.transition()
                 .duration(2000)
                 .attrTween("transform", translateAlong(path.node()))
@@ -270,9 +332,9 @@
                 };
             };
         }
-
+*/
         // Call function to build initial grid
-        buildGrid(r, c, bw, bh, constructed_grid);
+        //buildGrid(r, c, bw, bh, constructed_grid);
 
         //transition();
 
@@ -416,7 +478,10 @@
             return path;
         }
 
-        path = findCheapestPath(cost_matrix, origin, destination, constructed_grid);
+        var path = findCheapestPath(cost_matrix, origin, destination, constructed_grid);
+
+        // initial grid
+        //buildGrid(r, c, bw, bh, constructed_grid);
     </script>
 
 
