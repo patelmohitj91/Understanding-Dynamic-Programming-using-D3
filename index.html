@@ -9,11 +9,13 @@ path {
   fill: none;
   stroke: #000;
   stroke-width: 3px;
+  opacity:0.2;
 }
 circle {
   fill: steelblue;
   stroke: #fff;
   stroke-width: 3px;
+  opacity:0.4;
 }
 
 .weight{
@@ -21,6 +23,7 @@ circle {
   margin-left: 15px;
   float:left;
   font-weight:bold;
+
   color: "Black";  }
 
 </style>
@@ -38,10 +41,15 @@ circle {
   var r = 10
   var c = 10
 
-  var points = [
+var points = [
   [20,180],
   [60,180],
   [60,220]
+];
+
+var points2 = [
+[20,180],
+[20,220]
 ];
 
 // function to generate random numbers
@@ -157,6 +165,11 @@ var path = grid.append("path")
     .attr("d", d3.line(d3.curveLinear))
     .attr("id","pathID");
 
+var path2 = grid.append("path")
+    .data([points2])
+    .attr("d", d3.line(d3.curveLinear))
+    .attr("id","pathID");
+
 // Draw Circle at start of path
 var circle = grid.append("circle")
     .attr('r',7)
@@ -179,6 +192,36 @@ function displayText(boxweight, xpos, ypos)
                 .attr("transform","translate("+xposition+","+yposition+")")
 
 }
+
+// mechanism to make the robot move
+
+// Draw new circle
+
+var circle2 = grid.append("circle")
+    .attr('r',7)
+    .attr("transform","translate(" +points[0]+ ")")
+    .attr("id","circleID");  
+
+function transition() {
+  circle2.transition()
+      .duration(2000)
+      .attrTween("transform", translateAlong(path2.node()))
+      //.each("end", transition);
+}
+
+// Returns an attrTween for translating along the specified path element.
+function translateAlong(path2) {
+  var l = path2.getTotalLength();
+  return function(d, i, a) {
+    return function(t) {
+      var p = path2.getPointAtLength(t * l);
+      return "translate(" + p.x + "," + p.y + ")";
+    };
+  };
+
+}  
+transition();
+
 
 } // end of buildGrid function
 
@@ -207,7 +250,7 @@ function transition() {
 
 // Returns an attrTween for translating along the specified path element.
 function translateAlong(path) {
-  var l = path.getTotalLength();
+  var l = path2.getTotalLength();
   return function(d, i, a) {
     return function(t) {
       var p = path.getPointAtLength(t * l);
