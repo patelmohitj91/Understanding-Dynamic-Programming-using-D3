@@ -62,7 +62,7 @@
         <div id ="start" class = "text">You start at :</div> <br/>
         <div id ="end" class = "text">You end at :</div> <br/>
         <div>Step 3: Hit Explore! &nbsp 
-        <input name = 'exploreBox' type="submit" maxlength="2" id = "exploreBox" value = "Explore" onclick = "update()"/> </div> 
+        <input name = 'exploreBox' type="submit" maxlength="2" id = "exploreBox" value = "Explore" onclick = "animateRobot()"/> </div> 
       </h4>
   
 
@@ -73,7 +73,9 @@
         var bh = 40;
         var r = 10;
         var c = 10;
-
+        var origin = [0,0];
+        var destination = [r-1,c-1];
+        
         var points = [
             [20, 180],
             [60, 180],
@@ -182,14 +184,16 @@
                     if (count < 2) {
                         if (start == true) {
                             //console.log("End")
-                            endPoint(d3.select(this.__data__));
+                            var endPt = endPoint(d3.select(this.__data__));
                             d3.select(this).style("fill", "green");
-                            start = false
+                            start = false;
+
                         } else {
                             //console.log(d3.select(this.__data__))
-                            startPoint(d3.select(this.__data__));
+                            var startPt = startPoint(d3.select(this.__data__));
                             d3.select(this).style("fill", "red");
-                            start = true
+                            start = true;
+                            
                         }
                     }
                     count = count + 1;
@@ -208,23 +212,7 @@
             //.on('mouseover',function(d) {return console.log(d.weight)});
 
 
-            // Draw Path
-            var linepath = grid.append("path")
-                .data([path])
-                .attr("d", d3.line(d3.curveLinear))
-                .attr("id", "pathID");
-
-            /*var path2 = grid.append("path")
-                .data([points2])
-                .attr("d", d3.line(d3.curveLinear))
-                .attr("id", "pathID"); */
-
-            // Draw Circle at start of path
-            var circle = grid.append("circle")
-                .attr('r', 7)
-                .attr("transform", "translate(" + path[0] + ")")
-                .attr("id", "circleID");
-
+           
             // Function to display text
 
             function displayText(boxweight, xpos, ypos) {
@@ -241,35 +229,8 @@
 
             }
 
-            // mechanism to make the robot move
-
-            // Draw new circle
-
-            /*var circle2 = grid.append("circle")
-                .attr('r', 7)
-                .attr("transform", "translate(" + points[0] + ")")
-                .attr("id", "circleID"); */
-
-            function transition() {
-                circle.transition()
-                    .duration(2000)
-                    .attrTween("transform", translateAlong(linepath.node()))
-                //.each("end", transition);
-            }
-
-            // Returns an attrTween for translating along the specified path element.
-            function translateAlong(linepath) {
-                var l = linepath.getTotalLength();
-                return function(d, i, a) {
-                    return function(t) {
-                        var p = linepath.getPointAtLength(t * l);
-                        return "translate(" + p.x + "," + p.y + ")";
-                    };
-                };
-
-            }
-            transition();
-
+            // Robot mechanism
+            
 
         } // end of buildGrid function
 
@@ -302,41 +263,21 @@
         {
           var startX = pointData.node()['r']
           var startY = pointData.node()['c']
-          origin = "You start at : " + startX + " , "+ startY 
-          document.getElementById("start").innerHTML = origin;
+          originText = "You start at : " + startX + " , "+ startY 
+          document.getElementById("start").innerHTML = originText;
+          origin = [startX, startY]
+          //console.log(origin)
         }
 
         function endPoint(pointData)
         {
           var endX = pointData.node()['r']
           var endY = pointData.node()['c']
-          destination = "You end at : " + endX + " , "+ endY 
+          destinationText = "You end at : " + endX + " , "+ endY 
           //destination = endX + "," + endY
-          document.getElementById("end").innerHTML = destination;
-        }
-
-     /*   function transition() {
-            circle.transition()
-                .duration(2000)
-                .attrTween("transform", translateAlong(path.node()))
-                .each("end", transition);
-        }
-
-        // Returns an attrTween for translating along the specified path element.
-        function translateAlong(path) {
-            var l = path2.getTotalLength();
-            return function(d, i, a) {
-                return function(t) {
-                    var p = path.getPointAtLength(t * l);
-                    return "translate(" + p.x + "," + p.y + ")";
-                };
-            };
-        }
-*/
-        // Call function to build initial grid
-        //buildGrid(r, c, bw, bh, constructed_grid);
-
-        //transition();
+          document.getElementById("end").innerHTML = destinationText;
+          destination = [endX, endY];
+        } 
 
         function findValidNeighbors(cost_matrix, r, c, col) {
             var valid = [];
@@ -453,8 +394,11 @@
             return cost_matrix;
         }
 
-        var origin = [0, 0];
-        var destination = [r - 1, c - 1];
+        
+        //var origin = [0,0]
+        //var destination = [r - 1, c - 1];
+        
+
         cost_matrix = findMinCost(constructed_grid, origin, destination)
 
         function pathSvgIndex(col, grid) {
@@ -479,7 +423,7 @@
         }
 
         var path = findCheapestPath(cost_matrix, origin, destination, constructed_grid);
-
+        //console.log(path)
         // initial grid
         //buildGrid(r, c, bw, bh, constructed_grid);
     </script>
