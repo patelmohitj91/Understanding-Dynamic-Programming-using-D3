@@ -59,18 +59,48 @@
       fill: #000;
       stroke: #fff;
     }
+
+    .container {
+      display: table;
+      width: 100%;
+}
+.left-half {
+  
+  position: absolute;
+  left: 0px;
+  width: 50%;
+  
+  margin-left: 500px
+}
+
+.right-half {
+  
+  position: absolute;
+  right: 0px;
+  width: 50%;
+  
+}
+
+    
 </style>
+<section class = "container">
 <center>
 <canvas width="1200" height="200"></canvas>
 </center>
-<div id="chart"></div>
+
+
 
 <h4 class="header"> Understanding Djikstra's Algorithm through Interactive Visualization</h4>
-<div class="controls">
+ <div class="left-half">
+
 
     <div><b>Step 1:</b> Select number of rows and columns</div><br/>
     <div>Number of Rows: <input name='rowBox' type="number" min="1" max="10" value="4" id="rowBox" class="box" /> &nbsp Number of Columns: <input name='colBox' type="number" min="1" max="10" value="4" id="colBox" class="box" />&nbsp <input name='buildBox' type="submit" maxlength="2" id="buildBox" value="Build Grid" onclick="constructGrid()" />
-    </div> <br/>
+    </div>  
+    
+    
+  
+     <br/>
     <div><b>Step 2:</b> Select the start and end point on the Grid</div> <br/>
     <div id="start" class="text">You start at :</div> <br/>
     <div id="end" class="text">You end at :</div> <br/> 
@@ -78,10 +108,15 @@
         <input name='exploreBox' type="submit" maxlength="2" id="exploreBox" value="Explore" onclick="exploreGrid()" />
         </h4>
     </div>
-    <center>
-        <svg id="grid" width="920" height="500"></svg>
-        <br/>
-    </center>
+  <svg id="leftgrid" width="920" height="500" transform = "translate(0,305)"><text>Hello</text></svg>        
+  </div>
+<div class = "right-half">
+<center>
+<svg id="grid" width="920" height="500"></svg> <br/>
+<svg id="rightgrid2" width="920" height="500"><text>Hello</text></svg>      
+</center>
+</div>      
+           
 
     <body bgcolor="#F5F5DC">
 
@@ -150,10 +185,11 @@
                 var bh = bh;
 
                 grid = d3.select("svg")
+                    .attr("align","right")
                     .append("g")
                     .attr("width", ((r * bw) + r) + "px")
                     .attr("height", ((c * bh) + c) + "px")
-                    .attr("transform", "translate(250,0)");
+                    //.attr("transform", "translate(0,)");
 
                 var row = grid.selectAll(".row")
                     .data(gridD)
@@ -506,5 +542,5 @@
 
 
     </body>
-
+</section>
 </html>
