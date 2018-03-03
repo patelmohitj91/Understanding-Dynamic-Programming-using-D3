@@ -10,7 +10,7 @@
         fill: none;
         stroke: #000;
         stroke-width: 3px;
-        opacity: 0.2;
+        opacity: 0.4;
     }
 
     circle {
@@ -25,7 +25,7 @@
         margin-left: 15px;
         float: left;
         font-weight: bold;
-
+        font-size:9px;
         color: "Black";
     }
 
@@ -40,7 +40,7 @@
         
         margin-left: 55px;
         float: left;
-        font-size: 15px;
+        font-size: 14px;
         font-family: "Tahoma", Geneva, sans-serif;
         color: "Black";
         
@@ -48,22 +48,22 @@
   .header
   {
   font-family: "Tahoma", Geneva, sans-serif;
-  margin-left: 15px;
+  margin-left: 320px;
   }
 
 </style>
-
+<canvas width="1200" height="200"></canvas>
 <h4 class = "header"> Understanding Djikstra's Algorithm through Interactive Visualization</h4>
         <div class="controls">
         
-        <div>Step 1: Select number of rows and columns</div><br/>
-        <div>Number of Rows: <input name = 'rowBox' type="number" min = "1" max="10" value = "1" id = "rowBox" class="box"/> &nbsp
-          Number of Columns: <input name = 'colBox' type="number" min = "1" max="10" value = "1" id = "colBox" class ="box"/>&nbsp <input name = 'buildBox' type="submit" maxlength="2" id = "buildBox" value = "Build Grid" onclick = "constructGrid()"/>
+        <div><b>Step 1:</b> Select number of rows and columns</div><br/>
+        <div>Number of Rows: <input name = 'rowBox' type="number" min = "1" max="10" value = "4" id = "rowBox" class="box"/> &nbsp
+          Number of Columns: <input name = 'colBox' type="number" min = "1" max="10" value = "4" id = "colBox" class ="box"/>&nbsp <input name = 'buildBox' type="submit" maxlength="2" id = "buildBox" value = "Build Grid" onclick = "constructGrid()"/>
         </div> <br/>
-        <div>Step 2: Select the start and end point on the Grid</div> <br/>
+        <div><b>Step 2:</b> Select the start and end point on the Grid</div> <br/>
         <div id ="start" class = "text">You start at :</div> <br/>
         <div id ="end" class = "text">You end at :</div> <br/>
-        <div>Step 3: Hit Explore! &nbsp 
+        <div><b>Step 3:</b> Hit Explore! &nbsp 
         <input name = 'exploreBox' type="submit" maxlength="2" id = "exploreBox" value = "Explore" onclick = "exploreGrid()"/> 
       </h4>
 </div>      
@@ -72,7 +72,8 @@
         <br/>
       </center>  
 <body bgcolor="#F5F5DC">
-    <script>
+
+<script>
         var bw = 40;
         var bh = 40;
         var r = 10;
@@ -192,13 +193,13 @@
                         if (start == true) {
                             //console.log("End")
                             var endPt = endPoint(d3.select(this.__data__));
-                            d3.select(this).style("fill", "green");
+                            d3.select(this).style("fill", "lightgreen");
                             start = false;
 
                         } else {
                             //console.log(d3.select(this.__data__))
                             var startPt = startPoint(d3.select(this.__data__));
-                            d3.select(this).style("fill", "red");
+                            d3.select(this).style("fill", "BlanchedAlmond");
                             start = true;
                             
                         }
@@ -258,7 +259,7 @@
 
             function transition() {
                 circle.transition()
-                    .duration(2000)
+                    .duration(3000)
                     .attrTween("transform", translateAlong(linepath.node()))
                 //.each("end", transition);
             }
@@ -444,6 +445,66 @@
         // initial grid
         //buildGrid(r, c, bw, bh, constructed_grid);
     </script>
+
+<script src="https://d3js.org/d3-timer.v1.min.js"></script>
+<script>
+
+var canvas = document.querySelector("canvas"),
+    context = canvas.getContext("2d"),
+    width = canvas.width,
+    height = canvas.height,
+    radius = 2.5,
+    minDistance = 80,
+    maxDistance = 100,
+    minDistance2 = minDistance * minDistance,
+    maxDistance2 = maxDistance * maxDistance;
+
+var tau = 2 * Math.PI,
+    n = 100,
+    particles = new Array(n);
+
+for (var i = 0; i < n; ++i) {
+  particles[i] = {
+    x: width * Math.random(),
+    y0: height * Math.random(),
+    v: 0.1 * (Math.random() - 0.5)
+  };
+}
+
+d3.timer(function(elapsed) {
+  context.clearRect(0, 0, width, height);
+
+  for (var i = 0; i < n; ++i) {
+    for (var j = i + 1; j < n; ++j) {
+      var pi = particles[i],
+          pj = particles[j],
+          dx = pi.x - pj.x,
+          dy = pi.y - pj.y,
+          d2 = dx * dx + dy * dy;
+      if (d2 < maxDistance2) {
+        context.globalAlpha = d2 > minDistance2 ? (maxDistance2 - d2) / (maxDistance2 - minDistance2) : 1;
+        context.beginPath();
+        context.moveTo(pi.x, pi.y);
+        context.lineTo(pj.x, pj.y);
+        context.stroke();
+      }
+    }
+  }
+
+  context.globalAlpha = 1;
+
+  for (var i = 0; i < n; ++i) {
+    var p = particles[i];
+    p.y = p.y0 + elapsed * p.v;
+    if (p.y > height + maxDistance) p.x = width * Math.random(), p.y0 -= height + 2 * maxDistance;
+    else if (p.y < -maxDistance) p.x = width * Math.random(), p.y0 += height + 2 * maxDistance;
+    context.beginPath();
+    context.arc(p.x, p.y, radius, 0, tau);
+    context.fill();
+  }
+});
+
+</script>
 
 
 
