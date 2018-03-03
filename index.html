@@ -56,17 +56,15 @@
         <h4>
         <div>Step 1: Select number of rows and columns</div><br/>
         <div class = "rowcol">Number of Rows: <input name = 'rowBox' type="number" min = "1" max="10" value = "1" id = "rowBox" class="box"/> &nbsp
-          Number of Columns: <input name = 'colBox' type="number" min = "1" max="10" value = "1" id = "colBox" class ="box"/>&nbsp <input name = 'buildBox' type="submit" maxlength="2" id = "buildBox" value = "Build Grid" onclick = "update()"/> </div> 
+          Number of Columns: <input name = 'colBox' type="number" min = "1" max="10" value = "1" id = "colBox" class ="box"/>&nbsp <input name = 'buildBox' type="submit" maxlength="2" id = "buildBox" value = "Build Grid" onclick = "constructGrid()"/> </div> 
         </div> <br/>
         <div>Step 2: Select the start and end point on the Grid</div> <br/>
         <div id ="start" class = "text">You start at :</div> <br/>
         <div id ="end" class = "text">You end at :</div> <br/>
         <div>Step 3: Hit Explore! &nbsp 
-        <input name = 'exploreBox' type="submit" maxlength="2" id = "exploreBox" value = "Explore" onclick = "animateRobot()"/> </div> 
+        <input name = 'exploreBox' type="submit" maxlength="2" id = "exploreBox" value = "Explore" onclick = "exploreGrid()"/> </div> 
       </h4>
   
-
-
 <body>
     <script>
         var bw = 40;
@@ -75,6 +73,9 @@
         var c = 10;
         var origin = [0,0];
         var destination = [r-1,c-1];
+        var constructed_grid;
+        var path = [];
+        var grid;
         
         var points = [
             [20, 180],
@@ -130,7 +131,7 @@
             return data;
         }
 
-        var constructed_grid = gridData(r, c, bw, bh);
+        
 
         // Function to build the grid
 
@@ -140,7 +141,7 @@
             var bw = bw;
             var bh = bh;
 
-            var grid = d3.select("svg")
+            grid = d3.select("svg")
                 .append("g")
                 .attr("width", ((r * bw) + r) + "px")
                 .attr("height", ((c * bh) + c) + "px")
@@ -235,7 +236,11 @@
         } // end of buildGrid function
 
         // function to update the canvas
-        function update() {
+        function constructGrid() {
+            var rows = document.getElementById("rowBox").value
+            var cols = document.getElementById("colBox").value
+            constructed_grid = gridData(rows, cols, bw, bh);
+            
             d3.selectAll('#weight').remove();
             d3.selectAll('.square').remove();
             d3.selectAll('#pathID').remove();
@@ -248,14 +253,48 @@
             cost_matrix = findMinCost(constructed_grid, origin, destination)
             var path = findCheapestPath(cost_matrix, origin, destination, constructed_grid); */
             
-            var rows = document.getElementById("rowBox").value
-            var cols = document.getElementById("colBox").value
-            
-            constructed_grid = gridData(rows, cols, bw, bh);
+           
 
             //console.log(constructed_grid)
 
             buildGrid(rows, cols, bw, bh, constructed_grid);
+        }
+
+        function exploreGrid(){
+            cost_matrix = findMinCost(constructed_grid, origin, destination);
+            path = findCheapestPath(cost_matrix, origin, destination, constructed_grid);
+
+            var linepath = grid.append("path")
+                .data([path])
+                .attr("d", d3.line(d3.curveLinear))
+                .attr("id", "pathID");
+
+            // Draw Circle at start of path
+            var circle = grid.append("circle")
+                .attr('r', 7)
+                .attr("transform", "translate(" + path[0] + ")")
+                .attr("id", "circleID");
+
+            function transition() {
+                circle.transition()
+                    .duration(2000)
+                    .attrTween("transform", translateAlong(linepath.node()))
+                //.each("end", transition);
+            }
+
+            // Returns an attrTween for translating along the specified path element.
+            function translateAlong(linepath) {
+                var l = linepath.getTotalLength();
+                return function(d, i, a) {
+                    return function(t) {
+                        var p = linepath.getPointAtLength(t * l);
+                        return "translate(" + p.x + "," + p.y + ")";
+                    };
+                };
+
+            }
+            transition();
+
         }
 
         // function to display startpoint
@@ -397,9 +436,7 @@
         
         //var origin = [0,0]
         //var destination = [r - 1, c - 1];
-        
-
-        cost_matrix = findMinCost(constructed_grid, origin, destination)
+                
 
         function pathSvgIndex(col, grid) {
             element = grid[col[0]][col[1]];
@@ -422,7 +459,6 @@
             return path;
         }
 
-        var path = findCheapestPath(cost_matrix, origin, destination, constructed_grid);
         //console.log(path)
         // initial grid
         //buildGrid(r, c, bw, bh, constructed_grid);
