@@ -123,8 +123,8 @@
         <script>
             var bw = 40;
             var bh = 40;
-            var r = 10;
-            var c = 10;
+            var r = 4;
+            var c = 4;
             var origin = [0, 0];
             var destination = [r - 1, c - 1];
             var constructed_grid;
@@ -278,7 +278,7 @@
 
 
                 buildGrid(rows, cols, bw, bh, constructed_grid);
-                showNeighbors([0,0],constructed_grid);
+                showNeighbors(constructed_grid);
             }
 
             function exploreGrid() {
@@ -540,15 +540,17 @@
                 }
             });
 
-                        function showNeighbors(point, constructed_grid){
+            function getAllNeighbors(point, constructed_grid, nodes, links, visited){
                 //Show neighbors in a graph
-                var links = [];
-                var nodes = [];
+
                 i = point[0];
                 j = point[1];
                 source = i+','+j
 
-                nodes.push({id:source, weight:constructed_grid[i][j].weight});
+                if(visited[source] == undefined){
+                    nodes.push({id:source, weight:constructed_grid[i][j].weight});
+                    visited[source] = true;
+                }
 
                 //Top, Bottom
                 [-1, 1].forEach(function(dj){
@@ -557,9 +559,10 @@
                         weight = constructed_grid[i][j+dj].weight;
 
                         links.push({source:source, target:target,weight:weight});
-                        nodes.push({id:target, weight:weight});
-                        links.push({target:source, source:target,weight:weight});
-
+                        if(visited[target] == undefined){
+                            nodes.push({id:target, weight:weight});
+                            visited[target] = true;
+                        }
                     } 
                 });
 
@@ -570,11 +573,25 @@
                         weight = constructed_grid[i+di][j].weight;
                         
                         links.push({source:source, target:target,weight:weight});
-                        nodes.push({id:target, weight:weight});
-                        links.push({target:source, source:target,weight:weight});
+                        if(visited[target] == undefined){
+                            nodes.push({id:target, weight:weight});
+                            visited[target] = true;
+                        }
                     } 
                 });
-                console.log(nodes);
+            }
+
+            function showNeighbors(constructed_grid){
+                var nodes = [];
+                var links = [];
+                var visited = {};
+
+                for(var i = 0; i<constructed_grid.length; i++){
+                    for(var j = 0; j<constructed_grid[0].length; j++){
+                        current = [i, j];
+                        getAllNeighbors(current, constructed_grid, nodes, links, visited);
+                    }
+                }
 
                 var svg = d3.select("#leftgrid"),
                 width = +svg.attr("width"),
@@ -604,7 +621,7 @@
                 .enter().append("circle")
                   .attr("class", "node")
                   .attr("r", function(d){return (d.weight + 1) * 3})
-                  .style("fill", function(d) { return 'green'; })
+                  .style("fill", function(d) { return fillNode(d);})
                   .on('mouseover',function(d){
                        d3.select(this).append('svg:title').text(function(d){return d.id;})
                     });
@@ -618,7 +635,20 @@
                   node.attr("cx", function(d) { return d.x; })
                       .attr("cy", function(d) { return d.y; });
                 }
+            }
 
+            function fillNode(node){
+
+                o = origin[0]+','+origin[1];
+                d = destination[0]+','+destination[1];
+
+                if(node.id == o){
+                    return "crimson";
+                } 
+                else if(node.id == d){
+                    return "darkgreen";
+                }
+                return "black";
             }
 
 
