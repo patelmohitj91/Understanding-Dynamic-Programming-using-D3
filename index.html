@@ -91,31 +91,38 @@
 
 
 <h4 class="header"> Understanding Djikstra's Algorithm through Interactive Visualization</h4>
- <div class="left-half">
+<!-- div class="left-half"> -->
 
 
     <div><b>Step 1:</b> Select number of rows and columns</div><br/>
     <div>Number of Rows: <input name='rowBox' type="number" min="1" max="10" value="4" id="rowBox" class="box" /> &nbsp Number of Columns: <input name='colBox' type="number" min="1" max="10" value="4" id="colBox" class="box" />&nbsp 
     <button name='buildBox' type="button" maxlength="2" id="buildBox" value='Build Grid' 
-    onclick="constructGrid()">Build Grid</button>
+    onclick="constructGrid()">Build Grid</button> <br/><br/>
     </div>  
     
-    
+    <svg id="grid" width="920" height="500"></svg> <br/>
   
      <br/>
     <div><b>Step 2:</b> Select the start and end point on the Grid</div> <br/>
     <div id="start" class="text">You start at :</div> <br/>
     <div id="end" class="text">You end at :</div> <br/> 
+    <button name='buildBox' type="button" maxlength="2" id="buildBox" value='Build Graph' 
+    onclick="constructGraph()">Build Graph</button> <br/> <br/>
+      <svg id="leftgrid" width="920" height="900"></svg>   
+      <br/><br/>
     <div><b>Step 3:</b> Hit Explore! &nbsp
         <input name='exploreBox' type="submit" maxlength="2" id="exploreBox" value="Explore" onclick="exploreGrid()" />
         </h4>
     </div>
-  <svg id="leftgrid" width="920" height="500" transform = "translate(0,305)"><text>Hello</text></svg>        
+
+  <svg id="explore" width="920" height="500"></svg> <br/>
+  
+      
   </div>
-<div class = "right-half">
-<center>
+<!-- <div class = "right-half"> -->
+<!-- <center> -->
 <svg id="grid" width="920" height="500"></svg> <br/>
-<svg id="rightgrid2" width="920" height="500"><text>Hello</text></svg>      
+     
 </center>
 </div>      
            
@@ -180,13 +187,13 @@
 
             // Function to build the grid
 
-            function buildGrid(r, c, bw, bh, gridD) {
+            function buildGrid(r, c, bw, bh, gridD, element) {
                 var r = r;
                 var c = c;
                 var bw = bw;
                 var bh = bh;
-
-                grid = d3.select("#grid")
+                var element = element;
+                grid = d3.select(element)
                     .attr("align","right")
                     .append("g")
                     .attr("width", ((r * bw) + r) + "px")
@@ -277,10 +284,18 @@
                 d3.selectAll('.square').remove();
                 d3.selectAll('#pathID').remove();
                 d3.selectAll('#circleID').remove();
+                d3.selectAll(".link").remove();
+                d3.selectAll(".node").remove();
 
+                buildGrid(rows, cols, bw, bh, constructed_grid,"#grid");
+                buildGrid(rows, cols, bw, bh, constructed_grid,"#explore");
+                //showNeighbors(constructed_grid);
+            }
 
-                buildGrid(rows, cols, bw, bh, constructed_grid);
-                showNeighbors(constructed_grid);
+            function constructGraph()
+            {  
+              showNeighbors(constructed_grid);
+
             }
 
             function exploreGrid() {
@@ -484,7 +499,7 @@
             // initial grid
             //buildGrid(r, c, bw, bh, constructed_grid);
 
-                        function getAllNeighbors(point, constructed_grid, nodes, links, visited){
+            function getAllNeighbors(point, constructed_grid, nodes, links, visited){
                 //Show neighbors in a graph
 
                 i = point[0];
@@ -598,7 +613,7 @@
 
         <script src="https://d3js.org/d3-timer.v1.min.js"></script>
         <script>
-            /*
+            
             var canvas = document.querySelector("canvas"),
                 context = canvas.getContext("2d"),
                 width = canvas.width,
@@ -656,7 +671,7 @@
 
 
 
-            */
+            
         </script>
 
 
