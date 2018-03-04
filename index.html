@@ -184,7 +184,7 @@
                 var bw = bw;
                 var bh = bh;
 
-                grid = d3.select("svg")
+                grid = d3.select("#grid")
                     .attr("align","right")
                     .append("g")
                     .attr("width", ((r * bw) + r) + "px")
@@ -258,6 +258,7 @@
                         .style("color", "black")
                         .attr("transform", "translate(" + xposition + "," + yposition + ")")
 
+                
                 }
 
 
@@ -277,6 +278,7 @@
 
 
                 buildGrid(rows, cols, bw, bh, constructed_grid);
+                showNeighbors([0,0],constructed_grid);
             }
 
             function exploreGrid() {
@@ -537,6 +539,89 @@
                     context.fill();
                 }
             });
+
+                        function showNeighbors(point, constructed_grid){
+                //Show neighbors in a graph
+                var links = [];
+                var nodes = [];
+                i = point[0];
+                j = point[1];
+                source = i+','+j
+
+                nodes.push({id:source, weight:constructed_grid[i][j].weight});
+
+                //Top, Bottom
+                [-1, 1].forEach(function(dj){
+                    if(constructed_grid[i][j+dj] != undefined){
+                        target = i+','+(j+dj);
+                        weight = constructed_grid[i][j+dj].weight;
+
+                        links.push({source:source, target:target,weight:weight});
+                        nodes.push({id:target, weight:weight});
+                        links.push({target:source, source:target,weight:weight});
+
+                    } 
+                });
+
+                //Left, right
+                [-1, 1].forEach(function(di){
+                    if(constructed_grid[i+di] != undefined){
+                        target = (i+di)+','+j;
+                        weight = constructed_grid[i+di][j].weight;
+                        
+                        links.push({source:source, target:target,weight:weight});
+                        nodes.push({id:target, weight:weight});
+                        links.push({target:source, source:target,weight:weight});
+                    } 
+                });
+                console.log(nodes);
+
+                var svg = d3.select("#leftgrid"),
+                width = +svg.attr("width"),
+                height = +svg.attr("height");
+
+                var simulation = d3.forceSimulation()
+                .force("charge", d3.forceManyBody().strength(-200))
+                .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(40))
+                .force("x", d3.forceX(width / 2))
+                .force("y", d3.forceY(height / 2))
+                .on("tick", ticked);
+
+                var link = svg.selectAll(".link"),
+                node = svg.selectAll(".node");
+
+                simulation.nodes(nodes);
+                simulation.force("link").links(links);
+
+                link = link
+                .data(links)
+                .enter().append("line") 
+                  .attr("class", "link")
+                  .attr("stroke","black") ;
+
+                node = node
+                .data(nodes)
+                .enter().append("circle")
+                  .attr("class", "node")
+                  .attr("r", function(d){return (d.weight + 1) * 3})
+                  .style("fill", function(d) { return 'green'; })
+                  .on('mouseover',function(d){
+                       d3.select(this).append('svg:title').text(function(d){return d.id;})
+                    });
+
+                function ticked() {
+                  link.attr("x1", function(d) { return d.source.x; })
+                      .attr("y1", function(d) { return d.source.y; })
+                      .attr("x2", function(d) { return d.target.x; })
+                      .attr("y2", function(d) { return d.target.y; });
+
+                  node.attr("cx", function(d) { return d.x; })
+                      .attr("cy", function(d) { return d.y; });
+                }
+
+            }
+
+
         </script>
 
 
